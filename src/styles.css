@@ -59,42 +59,64 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-red: var(--red);
+  --color-red-soft: var(--red-soft);
+  --color-blue: var(--blue);
+  --color-blue-soft: var(--blue-soft);
+  --color-yellow: var(--yellow);
+  --color-green: var(--green);
+  --font-heading: "Kalam", cursive;
+  --font-body: "Patrick Hand", cursive;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --paper: oklch(0.987 0.008 90);
+  --paper-deep: oklch(0.93 0.02 85);
+  --ink: oklch(0.25 0.018 80);
+  --ink-soft: oklch(0.44 0.025 78);
+  --red: oklch(0.66 0.22 25);
+  --red-soft: oklch(0.93 0.07 25);
+  --blue: oklch(0.47 0.14 255);
+  --blue-soft: oklch(0.91 0.05 255);
+  --yellow: oklch(0.91 0.16 93);
+  --green: oklch(0.63 0.15 150);
+  --background: var(--paper);
+  --foreground: var(--ink);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: var(--ink);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --popover-foreground: var(--ink);
+  --primary: var(--red);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: var(--blue-soft);
+  --secondary-foreground: var(--blue);
+  --muted: var(--paper-deep);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--yellow);
+  --accent-foreground: var(--ink);
+  --destructive: var(--red);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: var(--ink);
+  --input: var(--ink);
+  --ring: var(--blue);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--red);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--yellow);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--ink);
+  --sidebar-ring: var(--blue);
 }
 
 .dark {
@@ -140,5 +162,23 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-body);
+    font-size: 1.15rem;
+    background-image: radial-gradient(oklch(0.25 0.018 80 / 0.08) 0.7px, transparent 0.7px);
+    background-size: 9px 9px;
   }
+
+  button, input, textarea, select { font: inherit; }
+  ::selection { background: var(--yellow); color: var(--ink); }
+}
+
+@layer utilities {
+  .font-heading { font-family: var(--font-heading); }
+  .font-body { font-family: var(--font-body); }
+  .paper-shadow { box-shadow: 5px 6px 0 var(--ink); }
+  .paper-shadow-small { box-shadow: 3px 4px 0 var(--ink); }
+  .scribble-border { border: 3px solid var(--ink); border-radius: 4% 7% 5% 6% / 6% 4% 7% 5%; }
+  .scribble-border-blue { border: 3px solid var(--blue); border-radius: 7% 4% 6% 5% / 5% 7% 4% 6%; }
+  .paper-lines { background-image: linear-gradient(to bottom, transparent 31px, oklch(0.25 0.018 80 / 0.1) 32px); background-size: 100% 32px; }
+  .sketch-underline { text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px; }
 }
