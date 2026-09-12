@@ -75,7 +75,7 @@ export default function TypeAndTally() {
   }, []);
 
   useEffect(() => {
-    if (view !== "race") {
+    if (view !== "race" && view !== "results") {
       speedCuePlayedRef.current = false;
       return;
     }
@@ -86,7 +86,6 @@ export default function TypeAndTally() {
     if (!audio) return;
     audio.currentTime = 0;
     void audio.play().catch(() => undefined);
-    setView("results");
   }, [view, players]);
 
   useEffect(() => {
@@ -321,6 +320,7 @@ export default function TypeAndTally() {
     setCurrentPlayer((player) => player ? { ...player, finished: true } : player);
     setPlayers((list) => list.map((player) => player.id === currentPlayer?.id ? { ...player, progress: 100, wpm: finalWpm, accuracy: finalAccuracy, finished: true } : player));
     await updatePlayer({ progress: 100, wpm: finalWpm, accuracy: finalAccuracy, finished: true });
+    setView("results");
   };
 
   const copyRoomLink = async () => {
@@ -336,11 +336,11 @@ export default function TypeAndTally() {
 }
 
 function Shell({ children, notice }: { children: React.ReactNode; notice?: string }) {
-  return <main className="min-h-screen overflow-hidden px-4 py-5 text-ink sm:px-8 sm:py-8"><div className="mx-auto max-w-6xl">{children}</div>{notice ? <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 scribble-border bg-yellow px-5 py-3 font-body font-bold paper-shadow-small">{notice}</div> : null}</main>;
+  return <main className="min-h-screen overflow-x-hidden px-3 py-4 text-ink sm:px-8 sm:py-8"><div className="mx-auto max-w-6xl">{children}</div>{notice ? <div className="fixed bottom-4 left-3 right-3 z-50 scribble-border bg-yellow px-4 py-3 text-center font-body font-bold paper-shadow-small sm:bottom-5 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:px-5">{notice}</div> : null}</main>;
 }
 
 function Brand() {
-  return <div className="flex items-center gap-3"><div className="grid h-12 w-12 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small"><Zap size={25} strokeWidth={3} /></div><div><p className="font-heading text-3xl font-bold leading-none">Typing Multiplayer Roast</p><p className="font-body text-sm text-ink-soft">a little race on paper</p></div><ThemeToggle /></div>;
+  return <div className="flex min-w-0 items-center gap-2 sm:gap-3"><div className="grid h-10 w-10 shrink-0 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small sm:h-12 sm:w-12"><Zap size={21} strokeWidth={3} /></div><div className="min-w-0"><p className="truncate font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer Roast</p><p className="font-body text-xs text-ink-soft sm:text-sm">a little race on paper</p></div><ThemeToggle /></div>;
 }
 
 const THEME_STORAGE_KEY = "type-and-tally-theme";
