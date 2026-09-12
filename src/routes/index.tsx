@@ -63,7 +63,6 @@ export default function TypeAndTally() {
   const elapsedSeconds = startedAt ? Math.max(1, Math.floor((Date.now() - startedAt) / 1000)) : 1;
   const wpm = Math.round((correctChars / 5 / elapsedSeconds) * 60) || 0;
   const accuracy = typed.length ? Math.round((correctChars / typed.length) * 100) : 100;
-  const twoPlayersAboveThreshold = players.filter((player) => player.wpm > 20).length >= 2;
   const speedCuePlayedRef = useRef(false);
   const speedCueAudioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -80,14 +79,15 @@ export default function TypeAndTally() {
       speedCuePlayedRef.current = false;
       return;
     }
-    if (!twoPlayersAboveThreshold || speedCuePlayedRef.current) return;
+    if (players.length < 2 || !players.every((player) => player.finished) || speedCuePlayedRef.current) return;
 
     speedCuePlayedRef.current = true;
     const audio = speedCueAudioRef.current;
     if (!audio) return;
     audio.currentTime = 0;
     void audio.play().catch(() => undefined);
-  }, [view, twoPlayersAboveThreshold]);
+    setView("results");
+  }, [view, players]);
 
   useEffect(() => {
     const inviteCode = new URLSearchParams(window.location.search).get("room");
@@ -317,9 +317,10 @@ export default function TypeAndTally() {
   };
 
   const finishRace = async () => {
-    if (view !== "race") return;
+    if (view !== "race" || currentPlayer?.finished) return;
+    setCurrentPlayer((player) => player ? { ...player, finished: true } : player);
+    setPlayers((list) => list.map((player) => player.id === currentPlayer?.id ? { ...player, progress: 100, wpm, accuracy, finished: true } : player));
     await updatePlayer({ progress: 100, wpm, accuracy, finished: true });
-    setView("results");
   };
 
   const copyRoomLink = async () => {
@@ -331,7 +332,7 @@ export default function TypeAndTally() {
   if (view === "home") return <HomeView displayName={displayName} setDisplayName={setDisplayName} roomCode={roomCode} setRoomCode={setRoomCode} duration={duration} setDuration={setDuration} passageChoice={passageChoice} setPassageChoice={setPassageChoice} createRoom={createRoom} joinRoom={joinRoom} busy={busy} notice={notice} />;
   if (view === "waiting" && room) return <WaitingView room={room} players={players} currentPlayer={currentPlayer} toggleReady={toggleReady} startRace={startRace} copyRoomLink={copyRoomLink} onBack={resetToHome} notice={notice} />;
   if (view === "race" && room) return <RaceView room={room} players={players} currentPlayer={currentPlayer} passage={passage} typed={typed} inputRef={inputRef} onType={syncProgress} correctChars={correctChars} errors={errors} progress={progress} wpm={wpm} accuracy={accuracy} secondsLeft={secondsLeft} countdown={countdown} onBack={resetToHome} />;
-  return <ResultsView room={room} players={players} currentPlayer={currentPlayer} onRaceAgain={() => { setTyped(""); setView("race"); }} onBack={resetToHome} />;
+  return <ResultsView room={room} players={players} currentPlayer={currentPlayer} onRaceAgain={() => { setTyped(""); setCurrentPlayer((player) => player ? { ...player, finished: false, progress: 0, wpm: 0, accuracy: 100 } : player); setPlayers((list) => list.map((player) => ({ ...player, finished: false, progress: 0, wpm: 0, accuracy: 100 }))); setView("race"); }} onBack={resetToHome} />;
 }
 
 function Shell({ children, notice }: { children: React.ReactNode; notice?: string }) {

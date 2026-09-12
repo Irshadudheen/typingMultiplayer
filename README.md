@@ -2,47 +2,45 @@
 
 
 
-# [Project Name] 🎯
+# Typing Multiplayer Roast
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: Typing Multiplayer
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Team Lead: Irshadudheen P - EMEA College of Arts and Science 
+
 
 ### Project Description
-[2-3 lines about what your project does]
+[A real-time multiplayer typing platform where users can create or join typing races and compete with others.
+
+Track your WPM, accuracy, progress, and mistakes while racing through the same text in real time.]
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+[People are getting dangerously good at typing alone — so we created a completely unnecessary way to turn typing practice into a multiplayer race.]
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+[Turn typing practice into a chaotic multiplayer race with Malayalam voice effects, live competition, and real-time typing battles — because apparently typing alone wasn't stressful enough. 😄]
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+- [TypeScript]
+- [React]
+- [React Hooks, Supabase Client]
+- [Vite, Git, GitHub, Supabase]
 
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+
 
 ### Implementation
 For Software:
 # Installation
-[commands]
+[npm install]
 
 # Run
-[commands]
+[npm run dev]
 
 ### Project Documentation
 For Software:
