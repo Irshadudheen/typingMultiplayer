@@ -14,33 +14,33 @@
 
 
 ### Project Description
-[A real-time multiplayer typing platform where users can create or join typing races and compete with others.
+A real-time multiplayer typing platform where users can create or join typing races and compete with others.
 
-Track your WPM, accuracy, progress, and mistakes while racing through the same text in real time.]
+Track your WPM, accuracy, progress, and mistakes while racing through the same text in real time.
 
 ### The Problem (that doesn't exist)
-[People are getting dangerously good at typing alone — so we created a completely unnecessary way to turn typing practice into a multiplayer race.]
+People are getting dangerously good at typing alone — so we created a completely unnecessary way to turn typing practice into a multiplayer race.
 
 ### The Solution (that nobody asked for)
-[Turn typing practice into a chaotic multiplayer race with Malayalam voice effects, live competition, and real-time typing battles — because apparently typing alone wasn't stressful enough. 😄]
+Turn typing practice into a chaotic multiplayer race with Malayalam voice effects, live competition, and real-time typing battles — because apparently typing alone wasn't stressful enough. 😄
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [TypeScript]
-- [React]
-- [React Hooks, Supabase Client]
-- [Vite, Git, GitHub, Supabase]
+- TypeScript
+- React
+- React Hooks, Supabase Client
+- Vite, Git, GitHub, Supabase
 
 
 
 ### Implementation
 For Software:
 # Installation
-[npm install]
+npm install
 
 # Run
-[npm run dev]
+npm run dev![alt text](image.png)
 
 ### Project Documentation
 For Software:

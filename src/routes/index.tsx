@@ -313,14 +313,14 @@ export default function TypeAndTally() {
     // Still persist to DB, but broadcast ensures instant UI updates for others
     void updatePlayer({ progress: nextProgress, wpm: nextWpm, accuracy: nextAccuracy });
     
-    if (nextTyped.length >= passage.length) finishRace();
+    if (nextTyped.length >= passage.length) finishRace(nextWpm, nextAccuracy);
   };
 
-  const finishRace = async () => {
-    if (view !== "race" || currentPlayer?.finished) return;
+  const finishRace = async (finalWpm = wpm, finalAccuracy = accuracy) => {
+    if (view !== "race" || currentPlayerRef.current?.finished) return;
     setCurrentPlayer((player) => player ? { ...player, finished: true } : player);
-    setPlayers((list) => list.map((player) => player.id === currentPlayer?.id ? { ...player, progress: 100, wpm, accuracy, finished: true } : player));
-    await updatePlayer({ progress: 100, wpm, accuracy, finished: true });
+    setPlayers((list) => list.map((player) => player.id === currentPlayer?.id ? { ...player, progress: 100, wpm: finalWpm, accuracy: finalAccuracy, finished: true } : player));
+    await updatePlayer({ progress: 100, wpm: finalWpm, accuracy: finalAccuracy, finished: true });
   };
 
   const copyRoomLink = async () => {
@@ -340,7 +340,7 @@ function Shell({ children, notice }: { children: React.ReactNode; notice?: strin
 }
 
 function Brand() {
-  return <div className="flex items-center gap-3"><div className="grid h-12 w-12 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small"><Zap size={25} strokeWidth={3} /></div><div><p className="font-heading text-3xl font-bold leading-none">Type &amp; Tally</p><p className="font-body text-sm text-ink-soft">a little race on paper</p></div><ThemeToggle /></div>;
+  return <div className="flex items-center gap-3"><div className="grid h-12 w-12 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small"><Zap size={25} strokeWidth={3} /></div><div><p className="font-heading text-3xl font-bold leading-none">Typing Multiplayer Roast</p><p className="font-body text-sm text-ink-soft">a little race on paper</p></div><ThemeToggle /></div>;
 }
 
 const THEME_STORAGE_KEY = "type-and-tally-theme";
@@ -383,5 +383,5 @@ function Stat({ label, value, suffix }: { label: string; value: string; suffix: 
 
 function ResultsView({ room, players, currentPlayer, onRaceAgain, onBack }: { room: Room | null; players: Player[]; currentPlayer: Player | null; onRaceAgain: () => void; onBack: () => void }) {
   const sorted = [...players].sort((a, b) => b.wpm - a.wpm);
-  return <Shell><header className="flex items-center justify-between"><Brand /><Button variant="ghost" onClick={onBack}><ArrowLeft size={19} /> Home</Button></header><section className="mx-auto max-w-3xl pb-12 pt-16"><div className="relative mb-10 text-center"><Sparkles className="absolute -left-2 top-0 text-red" /><p className="font-heading text-xl text-blue">room / {room?.code ?? "solo"}</p><h1 className="mt-2 font-heading text-6xl font-bold sm:text-8xl">Final tally</h1><p className="mt-3 text-xl text-ink-soft">The ink is dry. Here’s how the fingers flew.</p></div><div className="scribble-border rotate-[1deg] bg-card p-5 paper-shadow sm:p-8"><div className="flex items-center justify-between border-b-4 border-ink pb-4"><h2 className="font-heading text-3xl font-bold">🏆 race results</h2><span className="font-heading text-xl text-ink-soft">{room?.duration_seconds ?? 60}s sprint</span></div><div className="mt-5 space-y-3">{sorted.map((player, index) => <div key={player.id} className={`grid grid-cols-[42px_1fr_auto] items-center gap-3 border-b border-dashed border-ink/25 px-2 py-4 sm:grid-cols-[52px_1fr_110px_100px] ${player.id === currentPlayer?.id ? "bg-yellow/50" : ""}`}><span className="font-heading text-3xl font-bold">{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}</span><div><p className="font-heading text-2xl font-bold">{player.display_name} {player.id === currentPlayer?.id ? <span className="text-sm text-blue">(you)</span> : null}</p><p className="text-sm text-ink-soft">{player.finished ? "finished the passage" : "kept a steady pace"}</p></div><span className="font-heading text-2xl font-bold">{player.wpm} <small className="text-base font-normal">wpm</small></span><span className="hidden text-right text-ink-soft sm:block">{player.accuracy}% accuracy</span></div>)}</div></div><div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button onClick={onRaceAgain}><RotateCcw size={19} /> Race again</Button><Button variant="outline" onClick={onBack}><ArrowLeft size={19} /> New room</Button><Button variant="secondary" onClick={() => void navigator.clipboard?.writeText("I just raced on Type & Tally!")}><Clipboard size={19} /> Share result</Button></div></section></Shell>;
+  return <Shell><header className="flex items-center justify-between"><Brand /><Button variant="ghost" onClick={onBack}><ArrowLeft size={19} /> Home</Button></header><section className="mx-auto max-w-3xl pb-12 pt-16"><div className="relative mb-10 text-center"><Sparkles className="absolute -left-2 top-0 text-red" /><p className="font-heading text-xl text-blue">room / {room?.code ?? "solo"}</p><h1 className="mt-2 font-heading text-6xl font-bold sm:text-8xl">Final tally</h1><p className="mt-3 text-xl text-ink-soft">The ink is dry. Here’s how the fingers flew.</p></div><div className="scribble-border rotate-[1deg] bg-card p-5 paper-shadow sm:p-8"><div className="flex items-center justify-between border-b-4 border-ink pb-4"><h2 className="font-heading text-3xl font-bold">🏆 race results</h2><span className="font-heading text-xl text-ink-soft">{room?.duration_seconds ?? 60}s sprint</span></div><div className="mt-5 space-y-3">{sorted.map((player, index) => <div key={player.id} className={`grid grid-cols-[42px_1fr_auto] items-center gap-3 border-b border-dashed border-ink/25 px-2 py-4 sm:grid-cols-[52px_1fr_110px_100px] ${player.id === currentPlayer?.id ? "bg-yellow/50" : ""}`}><span className="font-heading text-3xl font-bold">{index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : index + 1}</span><div><p className="font-heading text-2xl font-bold">{player.display_name} {player.id === currentPlayer?.id ? <span className="text-sm text-blue">(you)</span> : null}</p><p className="text-sm text-ink-soft">{player.finished ? "finished the passage" : "kept a steady pace"}</p></div><span className="font-heading text-2xl font-bold">{player.wpm} <small className="text-base font-normal">wpm</small></span><span className="hidden text-right text-ink-soft sm:block">{player.accuracy}% accuracy</span></div>)}</div></div><div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row"><Button onClick={onRaceAgain}><RotateCcw size={19} /> Race again</Button><Button variant="outline" onClick={onBack}><ArrowLeft size={19} /> New room</Button><Button variant="secondary" onClick={() => void navigator.clipboard?.writeText("I just raced on Typing Multiplayer Roast!")}><Clipboard size={19} /> Share result</Button></div></section></Shell>;
 }
