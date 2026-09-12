@@ -5,7 +5,8 @@ create table public.typing_rooms (
   duration_seconds integer not null default 60,
   passage text not null,
   status text not null default 'waiting',
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null default (now() + interval '1 day')
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.typing_rooms TO anon, authenticated;
 GRANT ALL ON public.typing_rooms TO service_role;
@@ -33,6 +34,17 @@ CREATE POLICY "Anyone can view players" ON public.typing_players FOR SELECT TO a
 CREATE POLICY "Anyone can join rooms" ON public.typing_players FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "Anyone can update players" ON public.typing_players FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Anyone can leave rooms" ON public.typing_players FOR DELETE TO anon, authenticated USING (true);
+
+CREATE INDEX typing_rooms_expires_at_idx ON public.typing_rooms (expires_at);
+
+CREATE OR REPLACE FUNCTION public.cleanup_expired_typing_rooms()
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  DELETE FROM public.typing_rooms WHERE expires_at <= now();
+$$;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.typing_rooms;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.typing_players;

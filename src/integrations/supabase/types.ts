@@ -66,6 +66,7 @@ export type Database = {
           code: string
           created_at: string
           duration_seconds: number
+          expires_at: string
           host_name: string
           id: string
           passage: string
@@ -75,6 +76,7 @@ export type Database = {
           code: string
           created_at?: string
           duration_seconds?: number
+          expires_at?: string
           host_name: string
           id?: string
           passage: string
@@ -84,6 +86,7 @@ export type Database = {
           code?: string
           created_at?: string
           duration_seconds?: number
+          expires_at?: string
           host_name?: string
           id?: string
           passage?: string

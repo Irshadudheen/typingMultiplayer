@@ -120,9 +120,19 @@
 }
 
 .dark {
+  --paper: oklch(0.16 0.035 264);
+  --paper-deep: oklch(0.22 0.04 264);
+  --ink: oklch(0.94 0.02 90);
+  --ink-soft: oklch(0.74 0.035 85);
+  --red: oklch(0.7 0.19 25);
+  --red-soft: oklch(0.28 0.08 25);
+  --blue: oklch(0.75 0.13 245);
+  --blue-soft: oklch(0.27 0.06 245);
+  --yellow: oklch(0.78 0.14 93);
+  --green: oklch(0.72 0.14 150);
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
+  --card: oklch(0.245 0.045 264);
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);
@@ -164,7 +174,7 @@
     color: var(--color-foreground);
     font-family: var(--font-body);
     font-size: 1.15rem;
-    background-image: radial-gradient(oklch(0.25 0.018 80 / 0.08) 0.7px, transparent 0.7px);
+    background-image: radial-gradient(color-mix(in oklch, var(--ink) 8%, transparent) 0.7px, transparent 0.7px);
     background-size: 9px 9px;
   }
 
@@ -179,6 +189,6 @@
   .paper-shadow-small { box-shadow: 3px 4px 0 var(--ink); }
   .scribble-border { border: 3px solid var(--ink); border-radius: 4% 7% 5% 6% / 6% 4% 7% 5%; }
   .scribble-border-blue { border: 3px solid var(--blue); border-radius: 7% 4% 6% 5% / 5% 7% 4% 6%; }
-  .paper-lines { background-image: linear-gradient(to bottom, transparent 31px, oklch(0.25 0.018 80 / 0.1) 32px); background-size: 100% 32px; }
+  .paper-lines { background-image: linear-gradient(to bottom, transparent 31px, color-mix(in oklch, var(--ink) 10%, transparent) 32px); background-size: 100% 32px; }
   .sketch-underline { text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px; }
 }

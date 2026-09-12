@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Play, RotateCcw, Sparkles, Timer, Users, Wifi, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Moon, Play, RotateCcw, Sparkles, Sun, Timer, Users, Wifi, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import nirthipodaAudio from "@/assets/nirthipoda.mp3";
 import { supabase } from "@/integrations/supabase/client";
 
 type Room = {
@@ -10,6 +11,7 @@ type Room = {
   code: string;
   host_name: string;
   duration_seconds: number;
+  expires_at: string;
   passage: string;
   status: "waiting" | "racing" | "results";
 };
@@ -69,13 +71,50 @@ function TypeAndTally() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isCloudRoom = Boolean(room?.id && room.id !== "sample");
-  const passage = room?.passage ?? PASSAGES[passageChoice];
+  const passage = room?.passage || PASSAGES[passageChoice] || "";
   const correctChars = useMemo(() => typed.split("").filter((char, index) => char === passage[index]).length, [typed, passage]);
   const errors = Math.max(0, typed.length - correctChars);
   const progress = Math.min(100, Math.round((typed.length / passage.length) * 100));
   const elapsedSeconds = startedAt ? Math.max(1, Math.floor((Date.now() - startedAt) / 1000)) : 1;
   const wpm = Math.round((correctChars / 5 / elapsedSeconds) * 60) || 0;
   const accuracy = typed.length ? Math.round((correctChars / typed.length) * 100) : 100;
+  const twoPlayersAboveThreshold = players.filter((player) => player.wpm > 20).length >= 2;
+  const speedCuePlayedRef = useRef(false);
+  const speedCueAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    speedCueAudioRef.current = new Audio(nirthipodaAudio);
+    return () => {
+      speedCueAudioRef.current?.pause();
+      speedCueAudioRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (view !== "race") {
+      speedCuePlayedRef.current = false;
+      return;
+    }
+    if (!twoPlayersAboveThreshold || speedCuePlayedRef.current) return;
+
+    speedCuePlayedRef.current = true;
+    const audio = speedCueAudioRef.current;
+    if (!audio) return;
+    audio.currentTime = 0;
+    void audio.play().catch(() => undefined);
+  }, [view, twoPlayersAboveThreshold]);
+
+  useEffect(() => {
+    const inviteCode = new URLSearchParams(window.location.search).get("room");
+    if (inviteCode) setRoomCode(inviteCode.toUpperCase());
+  }, []);
+
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+  const currentPlayerRef = useRef(currentPlayer);
+  useEffect(() => {
+    currentPlayerRef.current = currentPlayer;
+  }, [currentPlayer]);
 
   useEffect(() => {
     if (!room?.id || room.id === "sample") return;
@@ -90,13 +129,64 @@ function TypeAndTally() {
       if (nextPlayers) setPlayers(nextPlayers as Player[]);
     };
     void loadRoom();
+    
     const channel = supabase
       .channel(`typing-room-${room.id}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "typing_rooms", filter: `id=eq.${room.id}` }, () => void loadRoom())
       .on("postgres_changes", { event: "*", schema: "public", table: "typing_players", filter: `room_id=eq.${room.id}` }, () => void loadRoom())
-      .subscribe();
-    return () => { active = false; void supabase.removeChannel(channel); };
+      .on("broadcast", { event: "player_progress" }, ({ payload }) => {
+        setPlayers((prev) =>
+          prev.map((p) =>
+            p.id === payload.playerId
+              ? { ...p, progress: payload.progress, wpm: payload.wpm, accuracy: payload.accuracy }
+              : p
+          )
+        );
+      })
+      .on("presence", { event: "leave" }, ({ leftPresences }) => {
+        // If we are the host, we clean up the players who disconnected
+        const host = currentPlayerRef.current;
+        if (host?.is_host) {
+          leftPresences.forEach((p: any) => {
+            if (p.user_id) void supabase.from("typing_players").delete().eq("id", p.user_id);
+          });
+        }
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          const me = currentPlayerRef.current;
+          if (me?.id) await channel.track({ user_id: me.id });
+        }
+      });
+      
+    channelRef.current = channel;
+    
+    return () => { 
+      active = false; 
+      void supabase.removeChannel(channel); 
+      channelRef.current = null;
+    };
   }, [room?.id]);
+
+  useEffect(() => {
+    const handleUnload = () => {
+      if (currentPlayer && isCloudRoom) {
+        // Fire and forget deletion to clean up ghosts on refresh/close
+        void supabase.from("typing_players").delete().eq("id", currentPlayer.id);
+        if (currentPlayer.is_host && room) {
+          void supabase.from("typing_rooms").delete().eq("id", room.id);
+        }
+      }
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => window.removeEventListener("beforeunload", handleUnload);
+  }, [currentPlayer, room, isCloudRoom]);
+
+  useEffect(() => {
+    if (room?.status === "racing" && view === "waiting") {
+      setView("race");
+    }
+  }, [room?.status, view]);
 
   useEffect(() => {
     if (view !== "race" || !room) return;
@@ -123,20 +213,47 @@ function TypeAndTally() {
       const timer = window.setTimeout(() => setNotice(""), 3500);
       return () => window.clearTimeout(timer);
     }
+    return undefined;
   }, [notice]);
 
   const resetToHome = () => {
+    void leaveRoom();
     setView("home"); setRoom(null); setCurrentPlayer(null); setTyped(""); setNotice(""); setPlayers(SAMPLE_PLAYERS);
+  };
+
+  const leaveRoom = async () => {
+    if (!room || !isCloudRoom) return;
+    const roomToLeave = room;
+    const playerToLeave = currentPlayer;
+    setRoom(null);
+    if (playerToLeave) await supabase.from("typing_players").delete().eq("id", playerToLeave.id);
+    if (playerToLeave?.is_host) await supabase.from("typing_rooms").delete().eq("id", roomToLeave.id);
   };
 
   const createRoom = async () => {
     const name = displayName.trim() || "Quick Fingers";
     setBusy(true);
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
-    const { data: createdRoom, error: roomError } = await supabase.from("typing_rooms").insert({ code, host_name: name, duration_seconds: duration, passage: PASSAGES[passageChoice], status: "waiting" }).select().single();
+    const { data: createdRoom, error: roomError } = await supabase.from("typing_rooms").insert({ code, host_name: name, duration_seconds: duration, passage: PASSAGES[passageChoice] || "", status: "waiting" }).select().single();
     if (roomError || !createdRoom) { setNotice("The room got a little tangled. Try again."); setBusy(false); return; }
-    const { data: createdPlayer } = await supabase.from("typing_players").insert({ room_id: createdRoom.id, display_name: name, is_host: true, is_ready: true }).select().single();
-    setRoom(createdRoom as Room); setCurrentPlayer(createdPlayer as Player); setPlayers(createdPlayer ? [createdPlayer as Player] : []); setView("waiting"); setBusy(false);
+    const { data: createdPlayer, error: playerError } = await supabase.from("typing_players").insert({ room_id: createdRoom.id, display_name: name, is_host: true, is_ready: true }).select().single();
+    if (playerError || !createdPlayer) { setNotice("The room was created, but joining it failed. Try again."); setBusy(false); return; }
+    const hostPlayer: Player = {
+      id: createdPlayer.id,
+      room_id: createdPlayer.room_id,
+      display_name: name,
+      is_host: true,
+      is_ready: true,
+      wpm: 0,
+      accuracy: 100,
+      progress: 0,
+      finished: false,
+    };
+    setRoom(createdRoom as Room); 
+    setCurrentPlayer(hostPlayer); 
+    setPlayers([hostPlayer]); 
+    setView("waiting"); 
+    setBusy(false);
   };
 
   const joinRoom = async () => {
@@ -144,10 +261,28 @@ function TypeAndTally() {
     const code = roomCode.trim().toUpperCase();
     if (!code) { setNotice("Pop in a room code first."); return; }
     setBusy(true);
-    const { data: foundRoom } = await supabase.from("typing_rooms").select("*").eq("code", code).eq("status", "waiting").maybeSingle();
-    if (!foundRoom) { setNotice("That room is hiding. Check the code and try again."); setBusy(false); return; }
-    const { data: joinedPlayer } = await supabase.from("typing_players").insert({ room_id: foundRoom.id, display_name: name, is_host: false, is_ready: false }).select().single();
-    setRoom(foundRoom as Room); setCurrentPlayer(joinedPlayer as Player); setView("waiting"); setBusy(false);
+    const { data: foundRoom, error: roomError } = await supabase.from("typing_rooms").select("*").eq("code", code).eq("status", "waiting").gt("expires_at", new Date().toISOString()).maybeSingle();
+    if (roomError || !foundRoom) { setNotice("That room is hiding. Check the code and try again."); setBusy(false); return; }
+    const { data: joinedPlayer, error: playerError } = await supabase.from("typing_players").insert({ room_id: foundRoom.id, display_name: name, is_host: false, is_ready: false }).select().single();
+    if (playerError || !joinedPlayer) { setNotice("The room is available, but joining failed. Try again."); setBusy(false); return; }
+    const newPlayer: Player = {
+      id: joinedPlayer.id,
+      room_id: joinedPlayer.room_id,
+      display_name: name,
+      is_host: false,
+      is_ready: false,
+      wpm: 0,
+      accuracy: 100,
+      progress: 0,
+      finished: false,
+    };
+    // Fetch existing players in the room so the joiner sees everyone
+    const { data: existingPlayers } = await supabase.from("typing_players").select("*").eq("room_id", foundRoom.id).order("joined_at");
+    setRoom(foundRoom as Room); 
+    setCurrentPlayer(newPlayer); 
+    setPlayers(existingPlayers ? (existingPlayers as Player[]) : [newPlayer]); 
+    setView("waiting"); 
+    setBusy(false);
   };
 
   const updatePlayer = async (updates: Partial<Player>) => {
@@ -174,8 +309,25 @@ function TypeAndTally() {
     const nextProgress = Math.min(100, Math.round((nextTyped.length / passage.length) * 100));
     const nextWpm = Math.round((nextCorrect / 5 / Math.max(1, elapsedSeconds)) * 60) || 0;
     const nextAccuracy = nextTyped.length ? Math.round((nextCorrect / nextTyped.length) * 100) : 100;
+    
     setPlayers((list) => list.map((player) => player.id === currentPlayer?.id ? { ...player, progress: nextProgress, wpm: nextWpm, accuracy: nextAccuracy } : player));
-    await updatePlayer({ progress: nextProgress, wpm: nextWpm, accuracy: nextAccuracy });
+    
+    if (channelRef.current && currentPlayer?.id) {
+      void channelRef.current.send({
+        type: "broadcast",
+        event: "player_progress",
+        payload: {
+          playerId: currentPlayer.id,
+          progress: nextProgress,
+          wpm: nextWpm,
+          accuracy: nextAccuracy,
+        },
+      });
+    }
+
+    // Still persist to DB, but broadcast ensures instant UI updates for others
+    void updatePlayer({ progress: nextProgress, wpm: nextWpm, accuracy: nextAccuracy });
+    
     if (nextTyped.length >= passage.length) finishRace();
   };
 
@@ -202,11 +354,30 @@ function Shell({ children, notice }: { children: React.ReactNode; notice?: strin
 }
 
 function Brand() {
-  return <div className="flex items-center gap-3"><div className="grid h-12 w-12 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small"><Zap size={25} strokeWidth={3} /></div><div><p className="font-heading text-3xl font-bold leading-none">Type &amp; Tally</p><p className="font-body text-sm text-ink-soft">a little race on paper</p></div></div>;
+  return <div className="flex items-center gap-3"><div className="grid h-12 w-12 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small"><Zap size={25} strokeWidth={3} /></div><div><p className="font-heading text-3xl font-bold leading-none">Type &amp; Tally</p><p className="font-body text-sm text-ink-soft">a little race on paper</p></div><ThemeToggle /></div>;
+}
+
+const THEME_STORAGE_KEY = "type-and-tally-theme";
+
+function ThemeToggle() {
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+
+  const toggleTheme = () => {
+    const nextIsDark = !isDark;
+    document.documentElement.classList.toggle("dark", nextIsDark);
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextIsDark ? "dark" : "light");
+    } catch {
+      // Theme still applies for this session when storage is unavailable.
+    }
+    setIsDark(nextIsDark);
+  };
+
+  return <button type="button" onClick={toggleTheme} aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"} title={isDark ? "Switch to light mode" : "Switch to dark mode"} className="grid h-10 w-10 place-items-center rounded-full border-2 border-ink bg-card text-ink transition-transform hover:-translate-y-0.5">{isDark ? <Sun size={19} /> : <Moon size={19} />}</button>;
 }
 
 function HomeView(props: { displayName: string; setDisplayName: (value: string) => void; roomCode: string; setRoomCode: (value: string) => void; duration: number; setDuration: (value: number) => void; passageChoice: number; setPassageChoice: (value: number) => void; createRoom: () => void; joinRoom: () => void; busy: boolean; notice: string }) {
-  return <Shell notice={props.notice}><header className="flex items-center justify-between"><Brand /><div className="hidden items-center gap-2 font-body text-sm text-ink-soft sm:flex"><span className="inline-block h-3 w-3 rounded-full bg-green" /> live rooms, no waiting around</div></header><section className="grid items-center gap-12 pb-8 pt-16 lg:grid-cols-[1.05fr_0.95fr] lg:pt-24"><div className="relative"><div className="absolute -left-2 -top-10 rotate-[-8deg] font-heading text-xl text-blue">ready, set, type!</div><h1 className="max-w-2xl font-heading text-6xl font-bold leading-[0.92] tracking-tight sm:text-8xl">Make words <span className="sketch-underline">move.</span></h1><p className="mt-8 max-w-xl text-2xl leading-tight text-ink-soft">A friendly typing race for people who like their competition live, lightweight, and a little bit wonky.</p><div className="mt-8 flex flex-wrap gap-4 text-lg"><span className="flex items-center gap-2"><Wifi size={19} className="text-green" /> Cloud synced</span><span className="flex items-center gap-2"><Users size={19} className="text-blue" /> Up to 8 racers</span></div></div><div className="relative"><div className="absolute -right-2 -top-7 z-10 rotate-[6deg] bg-yellow px-5 py-2 font-heading text-xl paper-shadow-small">pick a lane ↓</div><div className="scribble-border rotate-[1deg] bg-card p-6 paper-shadow sm:p-8"><label className="font-heading text-2xl font-bold">Your name</label><input value={props.displayName} onChange={(event) => props.setDisplayName(event.target.value)} placeholder="e.g. speedy sam" className="mt-3 h-14 w-full border-b-4 border-ink bg-transparent px-2 text-xl outline-none placeholder:text-ink-soft/50 focus:border-blue" /><div className="my-8 border-t-2 border-dashed border-ink/40" /><h2 className="font-heading text-3xl font-bold">Start a new race</h2><p className="mt-1 text-ink-soft">Choose the rules, then invite your people.</p><div className="mt-5 grid grid-cols-2 gap-3"><label className="font-body font-bold">Time<select value={props.duration} onChange={(event) => props.setDuration(Number(event.target.value))} className="mt-1 h-12 w-full border-2 border-ink bg-paper px-3 outline-none focus:ring-2 focus:ring-blue"><option value={30}>30 sec</option><option value={60}>60 sec</option><option value={120}>2 min</option></select></label><label className="font-body font-bold">Text<select value={props.passageChoice} onChange={(event) => props.setPassageChoice(Number(event.target.value))} className="mt-1 h-12 w-full border-2 border-ink bg-paper px-3 outline-none focus:ring-2 focus:ring-blue"><option value={0}>Little steps</option><option value={1}>Good race</option><option value={2}>Messy sketches</option></select></label></div><Button onClick={props.createRoom} disabled={props.busy} className="mt-6 w-full" size="lg"><Play size={20} fill="currentColor" /> {props.busy ? "Making room..." : "Create a room"}</Button><div className="my-6 flex items-center gap-3 text-sm text-ink-soft"><span className="h-px flex-1 bg-ink/25" /> or join a room <span className="h-px flex-1 bg-ink/25" /></div><div className="flex gap-3"><input value={props.roomCode} onChange={(event) => props.setRoomCode(event.target.value.toUpperCase())} placeholder="ROOM CODE" maxLength={6} className="h-12 min-w-0 flex-1 border-2 border-ink bg-paper px-4 text-center font-heading text-xl uppercase tracking-widest outline-none focus:ring-2 focus:ring-blue" /><Button variant="outline" onClick={props.joinRoom} disabled={props.busy}><ArrowRight size={20} /> Join</Button></div></div></div></section><div className="flex items-center justify-center gap-3 text-center font-heading text-xl text-ink-soft"><Sparkles size={20} className="text-red" /> Your keyboard is invited. <Sparkles size={20} className="text-red" /></div></Shell>;
+  return <Shell notice={props.notice}><header className="flex items-center justify-between"><Brand /><div className="hidden items-center gap-2 font-body text-sm text-ink-soft sm:flex"><span className="inline-block h-3 w-3 rounded-full bg-green" /> live rooms, no waiting around</div></header><section className="grid items-start gap-12 pb-8 pt-12 lg:grid-cols-[1.05fr_0.95fr] lg:pt-16"><div className="relative lg:mt-4"><div className="absolute -left-2 -top-10 rotate-[-8deg] font-heading text-xl text-blue">ready, set, type!</div><h1 className="max-w-2xl font-heading text-6xl font-bold leading-[0.92] tracking-tight sm:text-8xl">Make words <span className="sketch-underline">move.</span></h1><p className="mt-8 max-w-xl text-2xl leading-tight text-ink-soft">A friendly typing race for people who like their competition live, lightweight, and a little bit wonky.</p><div className="mt-8 flex flex-wrap gap-4 text-lg"><span className="flex items-center gap-2"><Wifi size={19} className="text-green" /> Cloud synced</span><span className="flex items-center gap-2"><Users size={19} className="text-blue" /> Up to 8 racers</span></div></div><div className="relative"><div className="absolute -right-2 -top-7 z-10 rotate-[6deg] bg-yellow px-5 py-2 font-heading text-xl paper-shadow-small">pick a lane ↓</div><div className="scribble-border rotate-[1deg] bg-card p-6 paper-shadow sm:p-8"><label className="font-heading text-2xl font-bold">Your name</label><input value={props.displayName} onChange={(event) => props.setDisplayName(event.target.value)} placeholder="e.g. speedy sam" className="mt-3 h-14 w-full border-b-4 border-ink bg-transparent px-2 text-xl outline-none placeholder:text-ink-soft/50 focus:border-blue" /><div className="my-8 border-t-2 border-dashed border-ink/40" /><h2 className="font-heading text-3xl font-bold">Start a new race</h2><p className="mt-1 text-ink-soft">Choose the rules, then invite your people.</p><div className="mt-5 grid grid-cols-2 gap-3"><label className="font-body font-bold">Time<select value={props.duration} onChange={(event) => props.setDuration(Number(event.target.value))} className="mt-1 h-12 w-full border-2 border-ink bg-paper px-3 outline-none focus:ring-2 focus:ring-blue"><option value={30}>30 sec</option><option value={60}>60 sec</option><option value={120}>2 min</option></select></label><label className="font-body font-bold">Text<select value={props.passageChoice} onChange={(event) => props.setPassageChoice(Number(event.target.value))} className="mt-1 h-12 w-full border-2 border-ink bg-paper px-3 outline-none focus:ring-2 focus:ring-blue"><option value={0}>Little steps</option><option value={1}>Good race</option><option value={2}>Messy sketches</option></select></label></div><Button onClick={props.createRoom} disabled={props.busy} className="mt-6 w-full" size="lg"><Play size={20} fill="currentColor" /> {props.busy ? "Making room..." : "Create a room"}</Button><div className="my-6 flex items-center gap-3 text-sm text-ink-soft"><span className="h-px flex-1 bg-ink/25" /> or join a room <span className="h-px flex-1 bg-ink/25" /></div><div className="flex gap-3"><input value={props.roomCode} onChange={(event) => props.setRoomCode(event.target.value.toUpperCase())} placeholder="ROOM CODE" maxLength={6} className="h-12 min-w-0 flex-1 border-2 border-ink bg-paper px-4 text-center font-heading text-xl uppercase tracking-widest outline-none focus:ring-2 focus:ring-blue" /><Button variant="outline" onClick={props.joinRoom} disabled={props.busy}><ArrowRight size={20} /> Join</Button></div></div></div></section><div className="flex items-center justify-center gap-3 text-center font-heading text-xl text-ink-soft"><Sparkles size={20} className="text-red" /> Your keyboard is invited. <Sparkles size={20} className="text-red" /></div></Shell>;
 }
 
 function RoomHeader({ room, onBack }: { room: Room; onBack: () => void }) {
