@@ -40,20 +40,20 @@ For Software:
 npm install
 
 # Run
-npm run dev![alt text](image.png)
+npm run dev
 
 ### Project Documentation
 For Software:
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+# Screenshots
+![Screenshot 1](screenshot/image.png)
+*Application landing page and race setup.*
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+![Screenshot 2](screenshot/image2.png)
+*Multiplayer room and player readiness screen.*
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![Screenshot 3](screenshot/image3.png)
+*Live typing race and player progress.*
 
 # Diagrams
 ![Workflow](Add your workflow/architecture diagram here)
