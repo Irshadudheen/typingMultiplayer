@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Moon, Play, RotateCcw, Sparkles, Sun, Timer, Users, Wifi, Zap } from "lucide-react";
 
@@ -39,21 +38,7 @@ const SAMPLE_PLAYERS: Player[] = [
   { id: "sample-2", room_id: "sample", display_name: "Sam", is_host: false, is_ready: true, wpm: 65, accuracy: 94, progress: 58, finished: false },
 ];
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Type & Tally — Multiplayer Typing Races" },
-      { name: "description", content: "Create a room, invite friends, and race through the same words in real time." },
-      { property: "og:title", content: "Type & Tally — Multiplayer Typing Races" },
-      { property: "og:description", content: "Create a room, invite friends, and race through the same words in real time." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: TypeAndTally,
-});
-
-function TypeAndTally() {
+export default function TypeAndTally() {
   const [view, setView] = useState<"home" | "waiting" | "race" | "results">("home");
   const [room, setRoom] = useState<Room | null>(null);
   const [players, setPlayers] = useState<Player[]>(SAMPLE_PLAYERS);
