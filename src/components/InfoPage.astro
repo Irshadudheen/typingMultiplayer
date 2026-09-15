@@ -9,6 +9,7 @@ interface Props {
 
 const { title, description, eyebrow = "Typing Multiplayer" } = Astro.props;
 const GA_ID = "G-6WGE0ZSW0V";
+const siteUrl = "https://typingmultiplayer.com";
 ---
 
 <!doctype html>
@@ -17,10 +18,7 @@ const GA_ID = "G-6WGE0ZSW0V";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#fffdf8" />
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="shortcut icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-mark.svg" sizes="any" />
     <meta name="apple-mobile-web-app-title" content="Typing Multiplayer" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="description" content={description} />
@@ -28,9 +26,12 @@ const GA_ID = "G-6WGE0ZSW0V";
     <meta property="og:site_name" content="Typing Multiplayer" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}/social-preview.svg`} />
+    <meta property="og:image:alt" content="Typing Multiplayer logo and live typing race tagline" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/social-preview.svg`} />
     <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
     <script is:inline define:vars={{ GA_ID }}>
       window.dataLayer = window.dataLayer || [];

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Moon, Play, RotateCcw, Sparkles, Sun, Timer, Users, Wifi, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Moon, Play, RotateCcw, Sparkles, Sun, Timer, Users, Wifi } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -329,7 +329,7 @@ function Shell({ children, notice }: { children: React.ReactNode; notice?: strin
 }
 
 function Brand() {
-  return <div className="flex min-w-0 items-center gap-2 sm:gap-3"><div className="grid h-10 w-10 shrink-0 rotate-[-7deg] place-items-center scribble-border bg-red text-primary-foreground paper-shadow-small sm:h-12 sm:w-12"><Zap size={21} strokeWidth={3} /></div><div className="min-w-0"><p className="truncate font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer</p><p className="font-body text-xs text-ink-soft sm:text-sm">a little race on paper</p></div><ThemeToggle /></div>;
+  return <div className="flex min-w-0 items-center gap-2 sm:gap-3"><img src="/favicon-mark.svg" alt="Typing Multiplayer" className="h-10 w-10 shrink-0 rotate-[-7deg] rounded-[18%] paper-shadow-small sm:h-12 sm:w-12" /><div className="min-w-0"><p className="truncate font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer</p><p className="font-body text-xs text-ink-soft sm:text-sm">a little race on paper</p></div><ThemeToggle /></div>;
 }
 
 const THEME_STORAGE_KEY = "type-and-tally-theme";

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Typing Multiplayer</title>
+  <desc id="description">A friendly live typing race for friends, teams, and typing practice.</desc>
+  <rect width="1200" height="630" fill="#fffdf8"/>
+  <path d="M0 0h1200v630H0z" fill="none" stroke="#27251f" stroke-width="8"/>
+  <circle cx="160" cy="315" r="112" fill="#d94b3f"/>
+  <path d="M190 205 112 315h54l-16 113 88-139h-57z" fill="#fffdf8"/>
+  <text x="330" y="295" fill="#27251f" font-family="Georgia, serif" font-size="76" font-weight="700">Typing Multiplayer</text>
+  <text x="336" y="370" fill="#4f4a40" font-family="Georgia, serif" font-size="34">Live typing races. Better rhythm. More fun.</text>
+  <path d="M336 405c170 18 350 18 530 0" fill="none" stroke="#d94b3f" stroke-width="8" stroke-linecap="round"/>
+</svg>
