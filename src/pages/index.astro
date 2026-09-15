@@ -1,6 +1,10 @@
 ---
 import TypeAndTally from "../routes/index";
 import "../styles.css";
+
+const siteUrl = "https://typingmultiplayerroast.vercel.app/";
+const pageTitle = "Typing Multiplayer | Free Online Typing Race Game";
+const pageDescription = "Play a free typing multiplayer race with friends, track typing speed and accuracy, and improve your keyboard skills with live competition.";
 ---
 
 <!doctype html>
@@ -9,7 +13,36 @@ import "../styles.css";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#fffdf8" />
-    <title>Typing Multiplayer  - Multiplayer Typing Races</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="keywords" content="Typing Multiplayer, typing club, typing game, typing lessons, free typing games, speed typing test, typing com, typing speed, typing test, typing games, typing practice, typing speed test, typing race, typing agent, free typing test, average typing speed, Typing Master, keyboard typing, typing app, free typing" />
+    <link rel="canonical" href={siteUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Typing Multiplayer Roast" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={siteUrl} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6WGE0ZSW0V"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6WGE0ZSW0V');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "Typing Multiplayer Roast",
+      url: siteUrl,
+      description: pageDescription,
+      applicationCategory: "GameApplication",
+      operatingSystem: "Web browser",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      featureList: ["Live typing races", "Typing speed tracking", "Accuracy tracking", "Multiplayer rooms", "Typing practice"]
+    })}></script>
+    <title>{pageTitle}</title>
     <script is:inline>
       try {
         if (localStorage.getItem("type-and-tally-theme") === "dark") {
@@ -20,5 +53,30 @@ import "../styles.css";
   </head>
   <body class="min-h-screen">
     <TypeAndTally client:load />
+    <article id="landing-seo" class="mx-auto max-w-6xl px-5 pb-16 pt-8 text-ink sm:px-8 sm:pt-12">
+      <div class="border-t-2 border-dashed border-ink/30 pt-8">
+        <p class="font-heading text-xl text-blue">Typing practice with a little more energy</p>
+        <h1 class="mt-2 max-w-4xl font-heading text-4xl font-bold leading-tight sm:text-5xl">A free Typing Multiplayer game for faster, more confident keyboard typing</h1>
+        <div class="mt-6 grid gap-8 text-lg leading-relaxed text-ink-soft lg:grid-cols-2">
+          <div class="space-y-5">
+            <p>Typing Multiplayer is a free online typing game that turns everyday keyboard practice into a live race. Instead of typing alone and watching a score disappear, you can create a room, invite friends, and see everyone’s progress as the same passage comes alive letter by letter. It is a simple, friendly way to make typing lessons more engaging for students, teams, families, and anyone who wants to build better keyboard habits.</p>
+            <p>Start by choosing your name, selecting a race length, and creating a room. Share the room code or invite link with your typing club, then wait for each player to get ready. When the race begins, concentrate on the passage in front of you. The app measures typing speed in words per minute, accuracy, mistakes, and progress so you can understand more than just who finished first. A steady rhythm and clean keystrokes often matter more than rushing.</p>
+            <p>Looking for a speed typing test? Each race gives you a quick, practical snapshot of your current typing speed. Use the result as a baseline, repeat the race, and compare how your accuracy changes when you slow down or focus on difficult words. Because the passages are short and the feedback is immediate, it works well as a free typing test before class, during a study break, or as a warm-up before longer typing practice.</p>
+          </div>
+          <div class="space-y-5">
+            <p>This typing race is designed for real people, not complicated setup. There is no software to install and no account flow standing between you and a match. Open the typing app in a browser, create a multiplayer room, and get started. Supabase keeps room and player updates synchronized, allowing racers to see live progress while they type. The experience is lightweight enough for a quick game but useful enough to support regular practice.</p>
+            <p>Teachers and typing club leaders can use the tool for friendly keyboard challenges, while learners can use it alongside traditional typing lessons or programs such as Typing Master. It is not a replacement for thoughtful instruction, but it adds motivation to repetition. Try to keep your hands in a comfortable position, look ahead at the next word, and aim for consistent accuracy. Over time, these small habits can help raise your average typing speed without sacrificing control.</p>
+            <p>Whether you searched for typing.com, typing com, a typing speed test, free typing games, or a fun typing game to play with friends, this tool gives you a focused place to practice. Create a race, invite your fastest friend, and see how your keyboard typing develops. Typing Multiplayer keeps the goal clear: type with accuracy, build speed naturally, and enjoy the satisfying feeling of getting better one word at a time.</p>
+          </div>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-3 text-base text-ink-soft" aria-label="Related typing topics">
+          <span class="scribble-border bg-yellow/60 px-3 py-1">typing practice</span>
+          <span class="scribble-border bg-blue-soft px-3 py-1">typing speed</span>
+          <span class="scribble-border bg-red-soft px-3 py-1">typing race</span>
+          <span class="scribble-border bg-green/20 px-3 py-1">free typing test</span>
+        </div>
+        <p class="mt-8 text-lg text-ink-soft">Have a typing question? <a href="/faq" class="font-bold text-blue underline">Read the typing FAQ</a> for answers about speed, practice, and keyboard problems.</p>
+      </div>
+    </article>
   </body>
 </html>

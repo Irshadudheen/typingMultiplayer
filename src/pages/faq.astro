@@ -1,0 +1,102 @@
+---
+import "../styles.css";
+
+const siteUrl = "https://typingmultiplayerroast.vercel.app/faq";
+const pageTitle = "Typing FAQ | Typing Speed, Practice, and Keyboard Help";
+const pageDescription = "Find answers about average typing speed, good WPM goals, improving typing, typing practice, and fixing a keyboard that is not typing.";
+const faqItems = [
+  {
+    question: "What is the average typing speed?",
+    answer: "The average typing speed for many adults is around 40 words per minute (WPM), although speed varies with experience, keyboard familiarity, and accuracy. Regular typing practice can help you build speed gradually while keeping mistakes low.",
+  },
+  {
+    question: "What is a good typing speed?",
+    answer: "A typing speed of 40 to 60 WPM is a good goal for everyday typing. Speeds above 60 WPM are strong for many office tasks, while professional typists may reach 80 WPM or more. Accuracy is just as important as speed.",
+  },
+  {
+    question: "How do I fix a keyboard that is not typing?",
+    answer: "Check that the keyboard is connected, try another USB port or reconnect Bluetooth, and restart the device. Test another app to see whether the issue is limited to the browser. If only one key fails, clean around it and check for a hardware problem.",
+  },
+  {
+    question: "How can I get better at typing?",
+    answer: "Practice consistently, use all of your fingers, keep your eyes on the screen, and focus on accuracy before speed. Short daily typing lessons, typing games, and multiplayer races can make repetition more engaging and help build muscle memory.",
+  },
+  {
+    question: "What is the average typing speed for beginners?",
+    answer: "Beginners often type between 20 and 30 WPM while learning keyboard positions and accuracy. This is a normal starting point. With regular typing practice and comfortable technique, beginners can steadily improve their speed over time.",
+  },
+  {
+    question: "How can I get faster at typing?",
+    answer: "To get faster at typing, practise difficult letter combinations, reduce unnecessary pauses, and repeat short passages while protecting your accuracy. Use a typing speed test to measure progress and a typing race to practise staying focused under pressure.",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#fffdf8" />
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={siteUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Typing Multiplayer Roast" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={siteUrl} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6WGE0ZSW0V"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6WGE0ZSW0V');
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqItems.map((item) => ({
+        "@type": "Question",
+        name: item.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.answer,
+        },
+      })),
+    })}></script>
+    <title>{pageTitle}</title>
+    <script is:inline>
+      try {
+        if (localStorage.getItem("type-and-tally-theme") === "dark") {
+          document.documentElement.classList.add("dark");
+        }
+      } catch {}
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <main class="mx-auto max-w-4xl px-5 py-8 text-ink sm:px-8 sm:py-12">
+      <header class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-ink/30 pb-8">
+        <div>
+          <p class="font-heading text-xl text-blue">Typing Multiplayer</p>
+          <h1 class="mt-2 font-heading text-5xl font-bold leading-tight sm:text-7xl">Typing FAQ</h1>
+          <p class="mt-4 max-w-2xl text-xl leading-relaxed text-ink-soft">Helpful answers about typing speed, keyboard practice, typing tests, and becoming a faster, more accurate typist.</p>
+        </div>
+        <a href="/" class="scribble-border bg-yellow px-4 py-2 font-heading text-xl font-bold paper-shadow-small" aria-label="Back to typing race">← Back to race</a>
+      </header>
+
+      <section class="mt-10 space-y-4" aria-label="Frequently asked questions">
+        {faqItems.map((item) => (
+          <details class="scribble-border bg-card px-5 py-4 paper-shadow-small">
+            <summary class="cursor-pointer font-heading text-2xl font-bold">{item.question}</summary>
+            <p class="mt-3 max-w-3xl text-lg leading-relaxed text-ink-soft">{item.answer}</p>
+          </details>
+        ))}
+      </section>
+
+      <p class="mt-10 text-lg text-ink-soft">Ready to practise? <a href="/" class="font-bold text-blue underline">Start a free typing multiplayer race</a> and measure your typing speed with friends.</p>
+    </main>
+  </body>
+</html>

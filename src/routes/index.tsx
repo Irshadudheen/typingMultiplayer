@@ -55,6 +55,10 @@ export default function TypeAndTally() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    document.getElementById("landing-seo")?.toggleAttribute("hidden", view !== "home");
+  }, [view]);
+
   const isCloudRoom = Boolean(room?.id && room.id !== "sample");
   const passage = room?.passage || PASSAGES[passageChoice] || "";
   const correctChars = useMemo(() => typed.split("").filter((char, index) => char === passage[index]).length, [typed, passage]);
