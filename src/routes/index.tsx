@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Clipboard, Crown, Flag, Link2, Moon, Play, RotateCcw, Sparkles, Sun, Timer, Users, Wifi, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import nirthipodaAudio from "@/assets/nirthipoda.mp3";
 import { supabase } from "@/integrations/supabase/client";
 
 type Room = {
@@ -67,30 +66,6 @@ export default function TypeAndTally() {
   const elapsedSeconds = startedAt ? Math.max(1, Math.floor((Date.now() - startedAt) / 1000)) : 1;
   const wpm = Math.round((correctChars / 5 / elapsedSeconds) * 60) || 0;
   const accuracy = typed.length ? Math.round((correctChars / typed.length) * 100) : 100;
-  const speedCuePlayedRef = useRef(false);
-  const speedCueAudioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    speedCueAudioRef.current = new Audio(nirthipodaAudio);
-    return () => {
-      speedCueAudioRef.current?.pause();
-      speedCueAudioRef.current = null;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (view !== "race" && view !== "results") {
-      speedCuePlayedRef.current = false;
-      return;
-    }
-    if (players.length < 2 || !players.every((player) => player.finished) || speedCuePlayedRef.current) return;
-
-    speedCuePlayedRef.current = true;
-    const audio = speedCueAudioRef.current;
-    if (!audio) return;
-    audio.currentTime = 0;
-    void audio.play().catch(() => undefined);
-  }, [view, players]);
 
   useEffect(() => {
     const inviteCode = new URLSearchParams(window.location.search).get("room");
