@@ -1,4 +1,6 @@
 ---
+import "../styles.css";
+
 interface Props {
   title: string;
   description: string;
@@ -6,6 +8,7 @@ interface Props {
 }
 
 const { title, description, eyebrow = "Typing Multiplayer" } = Astro.props;
+const GA_ID = "G-6WGE0ZSW0V";
 ---
 
 <!doctype html>
@@ -28,6 +31,13 @@ const { title, description, eyebrow = "Typing Multiplayer" } = Astro.props;
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}></script>
+    <script is:inline define:vars={{ GA_ID }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', GA_ID);
+    </script>
     <title>{title}</title>
     <script is:inline>
       try {
