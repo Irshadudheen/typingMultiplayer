@@ -1,11 +1,16 @@
+---
+import TypeAndTally from "../routes/index";
+import "../styles.css";
+---
+
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#fffdf8" />
-    <title>Typing Multiplayer Roast - Multiplayer Typing Races</title>
-    <script>
+    <title>Typing Multiplayer  - Multiplayer Typing Races</title>
+    <script is:inline>
       try {
         if (localStorage.getItem("type-and-tally-theme") === "dark") {
           document.documentElement.classList.add("dark");
@@ -14,7 +19,6 @@
     </script>
   </head>
   <body class="min-h-screen">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <TypeAndTally client:load />
   </body>
 </html>

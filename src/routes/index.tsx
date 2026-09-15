@@ -245,28 +245,38 @@ export default function TypeAndTally() {
     const code = roomCode.trim().toUpperCase();
     if (!code) { setNotice("Pop in a room code first."); return; }
     setBusy(true);
-    const { data: foundRoom, error: roomError } = await supabase.from("typing_rooms").select("*").eq("code", code).eq("status", "waiting").gt("expires_at", new Date().toISOString()).maybeSingle();
-    if (roomError || !foundRoom) { setNotice("That room is hiding. Check the code and try again."); setBusy(false); return; }
-    const { data: joinedPlayer, error: playerError } = await supabase.from("typing_players").insert({ room_id: foundRoom.id, display_name: name, is_host: false, is_ready: false }).select().single();
-    if (playerError || !joinedPlayer) { setNotice("The room is available, but joining failed. Try again."); setBusy(false); return; }
-    const newPlayer: Player = {
-      id: joinedPlayer.id,
-      room_id: joinedPlayer.room_id,
-      display_name: name,
-      is_host: false,
-      is_ready: false,
-      wpm: 0,
-      accuracy: 100,
-      progress: 0,
-      finished: false,
-    };
-    // Fetch existing players in the room so the joiner sees everyone
-    const { data: existingPlayers } = await supabase.from("typing_players").select("*").eq("room_id", foundRoom.id).order("joined_at");
-    setRoom(foundRoom as Room); 
-    setCurrentPlayer(newPlayer); 
-    setPlayers(existingPlayers ? (existingPlayers as Player[]) : [newPlayer]); 
-    setView("waiting"); 
-    setBusy(false);
+    try {
+      const { data: foundRoom, error: roomError } = await supabase.from("typing_rooms").select("*").eq("code", code).eq("status", "waiting").gt("expires_at", new Date().toISOString()).maybeSingle();
+      if (roomError) throw roomError;
+      if (!foundRoom) { setNotice("That room is hiding. Check the code, status, or expiry."); return; }
+
+      const { data: joinedPlayer, error: playerError } = await supabase.from("typing_players").insert({ room_id: foundRoom.id, display_name: name, is_host: false, is_ready: false }).select().single();
+      if (playerError) throw playerError;
+      if (!joinedPlayer) { setNotice("The room is available, but no player was created."); return; }
+
+      const newPlayer: Player = {
+        id: joinedPlayer.id,
+        room_id: joinedPlayer.room_id,
+        display_name: name,
+        is_host: false,
+        is_ready: false,
+        wpm: 0,
+        accuracy: 100,
+        progress: 0,
+        finished: false,
+      };
+      const { data: existingPlayers } = await supabase.from("typing_players").select("*").eq("room_id", foundRoom.id).order("joined_at");
+      setRoom(foundRoom as Room);
+      setCurrentPlayer(newPlayer);
+      setPlayers(existingPlayers ? (existingPlayers as Player[]) : [newPlayer]);
+      setView("waiting");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown Supabase error";
+      console.error("Unable to join room", error);
+      setNotice(`Join failed: ${message}`);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const updatePlayer = async (updates: Partial<Player>) => {
@@ -346,7 +356,7 @@ function Brand() {
 const THEME_STORAGE_KEY = "type-and-tally-theme";
 
 function ThemeToggle() {
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const [isDark, setIsDark] = useState(() => typeof document !== "undefined" && document.documentElement.classList.contains("dark"));
 
   const toggleTheme = () => {
     const nextIsDark = !isDark;

@@ -1,20 +1,22 @@
 {
-  "name": "typing-multiplayer-vite",
+  "name": "typing-multiplayer",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "build:dev": "vite build --mode development",
-    "preview": "vite preview",
+    "dev": "astro dev",
+    "build": "astro build",
+    "build:dev": "astro build",
+    "preview": "astro preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "deploy": " astro build && wrangler pages publish ./dist --project-name=typing-multiplayer --branch=main"
   },
   "overrides": {
     "rolldown": "1.2.1"
   },
   "dependencies": {
+    "@astrojs/react": "^4.4.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -63,6 +65,7 @@
     "tw-animate-css": "^1.3.4",
     "vaul": "^1.1.2",
     "vite-tsconfig-paths": "^6.0.2",
+    "wrangler": "^4.131.2",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -70,7 +73,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "@vitejs/plugin-react": "^5.2.0",
+    "astro": "^5.13.5",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
@@ -79,7 +82,6 @@
     "globals": "^15.15.0",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.56.1",
-    "vite": "8.1.5"
+    "typescript-eslint": "^8.56.1"
   }
 }
