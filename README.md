@@ -2,7 +2,7 @@
 
 
 
-# Typing Multiplayer Roast
+# Typing Multiplayer
 
 [Live site](https://typingmultiplayerroast.vercel.app/)
 

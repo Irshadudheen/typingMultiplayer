@@ -13,6 +13,12 @@ const pageDescription = "Play a free typing multiplayer race with friends, track
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#fffdf8" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Typing Multiplayer" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="description" content={pageDescription} />
     <meta name="keywords" content="Typing Multiplayer, typing club, typing game, typing lessons, free typing games, speed typing test, typing com, typing speed, typing test, typing games, typing practice, typing speed test, typing race, typing agent, free typing test, average typing speed, Typing Master, keyboard typing, typing app, free typing" />
     <link rel="canonical" href={siteUrl} />
@@ -34,7 +40,7 @@ const pageDescription = "Play a free typing multiplayer race with friends, track
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebApplication",
-      name: "Typing Multiplayer Roast",
+      name: "Typing Multiplayer",
       url: siteUrl,
       description: pageDescription,
       applicationCategory: "GameApplication",
@@ -78,5 +84,13 @@ const pageDescription = "Play a free typing multiplayer race with friends, track
         <p class="mt-8 text-lg text-ink-soft">Have a typing question? <a href="/faq" class="font-bold text-blue underline">Read the typing FAQ</a> for answers about speed, practice, and keyboard problems.</p>
       </div>
     </article>
+    <footer class="mx-auto max-w-6xl border-t-2 border-dashed border-ink/30 px-5 py-8 text-base text-ink-soft sm:px-8">
+      <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer navigation">
+        <a class="font-bold text-blue underline" href="/about">About</a>
+        <a class="font-bold text-blue underline" href="/privacy">Privacy</a>
+        <a class="font-bold text-blue underline" href="/terms">Terms</a>
+        <a class="font-bold text-blue underline" href="/contact">Contact</a>
+      </nav>
+    </footer>
   </body>
 </html>

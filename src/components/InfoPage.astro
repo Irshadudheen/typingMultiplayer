@@ -1,0 +1,63 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+}
+
+const { title, description, eyebrow = "Typing Multiplayer" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#fffdf8" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Typing Multiplayer" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Typing Multiplayer" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <title>{title}</title>
+    <script is:inline>
+      try {
+        if (localStorage.getItem("type-and-tally-theme") === "dark") {
+          document.documentElement.classList.add("dark");
+        }
+      } catch {}
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <main class="mx-auto max-w-4xl px-5 py-8 text-ink sm:px-8 sm:py-12">
+      <header class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-ink/30 pb-8">
+        <a href="/" class="font-heading text-2xl font-bold text-ink">{eyebrow}</a>
+        <a href="/" class="scribble-border bg-yellow px-4 py-2 font-heading text-xl font-bold paper-shadow-small" aria-label="Back to typing race">&lt;- Back to race</a>
+      </header>
+      <article class="prose prose-lg mt-10 max-w-none text-ink-soft">
+        <p class="font-heading text-xl text-blue">Typing practice, clearly explained</p>
+        <h1 class="font-heading text-5xl font-bold leading-tight text-ink sm:text-7xl">{title}</h1>
+        <slot />
+      </article>
+      <footer class="mt-12 border-t-2 border-dashed border-ink/30 pt-6 text-base text-ink-soft">
+        <nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer navigation">
+          <a class="font-bold text-blue underline" href="/">Race</a>
+          <a class="font-bold text-blue underline" href="/faq">FAQ</a>
+          <a class="font-bold text-blue underline" href="/about">About</a>
+          <a class="font-bold text-blue underline" href="/privacy">Privacy</a>
+          <a class="font-bold text-blue underline" href="/terms">Terms</a>
+          <a class="font-bold text-blue underline" href="/contact">Contact</a>
+        </nav>
+      </footer>
+    </main>
+  </body>
+</html>
