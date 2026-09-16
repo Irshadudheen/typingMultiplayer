@@ -329,7 +329,7 @@ function Shell({ children, notice }: { children: React.ReactNode; notice?: strin
 }
 
 function Brand() {
-  return <div className="flex min-w-0 items-center gap-2 sm:gap-3"><img src="/favicon-mark.svg" alt="Typing Multiplayer" className="h-10 w-10 shrink-0 rotate-[-7deg] rounded-[18%] paper-shadow-small sm:h-12 sm:w-12" /><div className="min-w-0"><p className="truncate font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer</p><p className="font-body text-xs text-ink-soft sm:text-sm">a little race on paper</p></div><ThemeToggle /></div>;
+  return <div className="flex min-w-0 items-center gap-2 sm:gap-3"><img src="/favicon-mark.svg" alt="Typing Multiplayer" className="h-10 w-10 shrink-0 rotate-[-7deg] rounded-[18%] paper-shadow-small sm:h-12 sm:w-12" /><div className="min-w-0"><p className="truncate font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer</p><p className="font-body text-xs text-ink-soft sm:text-sm">a little race on paper</p></div><a href="/docs" className="hidden font-heading text-lg font-bold text-blue underline sm:block">Docs</a><ThemeToggle /></div>;
 }
 
 const THEME_STORAGE_KEY = "type-and-tally-theme";

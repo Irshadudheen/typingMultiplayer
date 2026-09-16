@@ -191,6 +191,11 @@
   .scribble-border-blue { border: 3px solid var(--blue); border-radius: 7% 4% 6% 5% / 5% 7% 4% 6%; }
   .paper-lines { background-image: linear-gradient(to bottom, transparent 31px, color-mix(in oklch, var(--ink) 10%, transparent) 32px); background-size: 100% 32px; }
   .sketch-underline { text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px; }
+  .docs-prose { display: grid; gap: 1rem; font-size: 1.2rem; line-height: 1.65; }
+  .docs-prose h2 { margin-top: 1.5rem; line-height: 1.15; }
+  .docs-prose ul { display: grid; gap: 0.65rem; list-style: none; padding: 0 0 0 1.5rem; }
+  .docs-prose li { position: relative; }
+  .docs-prose li::before { position: absolute; left: -1.35rem; color: var(--red); content: "•"; font-family: var(--font-heading); font-size: 1.5rem; }
 }
 
 @media (max-width: 640px) {

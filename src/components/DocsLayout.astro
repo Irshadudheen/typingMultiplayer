@@ -1,0 +1,168 @@
+---
+import { docCategories, docsBySlug, type DocPage } from "../data/docs";
+import "../styles.css";
+
+interface Props {
+  page?: DocPage;
+  isHub?: boolean;
+}
+
+const { page, isHub = false } = Astro.props;
+const siteUrl = "https://typingmultiplayer.com";
+const title = page ? `${page.title} | Typing Multiplayer` : "Typing Hub | Typing Multiplayer";
+const description = page?.description ?? "Learn typing, improve your WPM and accuracy, practise keyboard skills, and compete with friends in the Typing Multiplayer Typing Hub.";
+const canonical = page ? `${siteUrl}/docs/${page.slug}` : `${siteUrl}/docs`;
+const breadcrumbName = page?.title ?? "Typing Hub";
+const breadcrumbItems = [
+  { name: "Home", url: siteUrl },
+  { name: "Docs", url: `${siteUrl}/docs` },
+  ...(page ? [{ name: breadcrumbName, url: canonical }] : []),
+];
+const articleSchema = page ? {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: page.title,
+  description: page.description,
+  url: canonical,
+  image: `${siteUrl}/whatsapplogo.png`,
+  publisher: { "@type": "Organization", name: "Typing Multiplayer" },
+} : null;
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: item.url,
+  })),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="theme-color" content="#fffdf8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon-mark.svg" sizes="any" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content={page ? "article" : "website"} />
+    <meta property="og:site_name" content="Typing Multiplayer" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={`${siteUrl}/whatsapplogo.png`} />
+    <meta property="og:image:alt" content="Typing Multiplayer logo" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/whatsapplogo.png`} />
+    <title>{title}</title>
+    <script is:inline>
+      try {
+        if (localStorage.getItem("type-and-tally-theme") === "dark") document.documentElement.classList.add("dark");
+      } catch {}
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+    {articleSchema ? <script type="application/ld+json" set:html={JSON.stringify(articleSchema)}></script> : null}
+  </head>
+  <body>
+    <main class="min-h-screen px-4 py-5 text-ink sm:px-8 sm:py-8">
+      <div class="mx-auto max-w-7xl">
+        <header class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-dashed border-ink/30 pb-5">
+          <a href="/" class="flex items-center gap-3" aria-label="Typing Multiplayer home">
+            <img src="/favicon-mark.svg" alt="" class="h-11 w-11 rotate-[-7deg] rounded-[18%] paper-shadow-small" />
+            <span><span class="block font-heading text-2xl font-bold leading-none sm:text-3xl">Typing Multiplayer</span><span class="text-sm text-ink-soft">a little race on paper</span></span>
+          </a>
+          <nav class="flex items-center gap-4 font-heading text-xl" aria-label="Primary navigation">
+            <a class="text-blue underline" href="/">Typing test</a>
+            <a class="scribble-border bg-yellow px-3 py-1 font-bold paper-shadow-small" href="/docs">Docs</a>
+          </nav>
+        </header>
+
+        {isHub ? (
+          <section class="py-12 sm:py-16">
+            <div class="max-w-3xl">
+              <p class="font-heading text-xl text-blue">a small handbook for busy fingers</p>
+              <h1 class="mt-2 font-heading text-6xl font-bold leading-[0.95] sm:text-8xl">Typing <span class="sketch-underline">Hub</span></h1>
+              <p class="mt-6 max-w-2xl text-2xl leading-tight text-ink-soft">Learn typing, improve your WPM and accuracy, practise your keyboard skills, and compete with friends.</p>
+            </div>
+            <div class="mt-10 max-w-xl">
+              <label for="docs-search" class="font-heading text-2xl font-bold">Find a guide</label>
+              <input id="docs-search" type="search" placeholder="Search WPM, accuracy, rooms..." class="mt-2 h-14 w-full scribble-border bg-card px-4 text-lg outline-none focus:border-blue" />
+              <p id="docs-search-status" class="mt-2 text-sm text-ink-soft" aria-live="polite"></p>
+            </div>
+            <div class="mt-12 grid gap-8 md:grid-cols-2">
+              {docCategories.map((category, index) => (
+                <section class={`scribble-border bg-card p-6 paper-shadow ${index % 2 ? "rotate-[1deg]" : "rotate-[-1deg]"}`}>
+                  <p class="font-heading text-3xl font-bold">{category.name}</p>
+                  <p class="mt-1 text-ink-soft">{category.description}</p>
+                  <div class="mt-5 grid gap-2">
+                    {category.slugs.map((slug) => {
+                      const item = docsBySlug.get(slug);
+                      return item ? <a class="doc-search-item border-b border-dashed border-ink/20 py-2 font-heading text-xl text-blue underline" data-search={`${item.title} ${item.description} ${category.name}`} href={`/docs/${item.slug}`}>{item.title.replace("Typing Multiplayer", "").replace("A Practical ", "").trim()}</a> : null;
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+            <div class="mt-12 flex flex-wrap items-center gap-4">
+              <a class="scribble-border bg-red px-5 py-3 font-heading text-2xl font-bold text-white paper-shadow-small" href="/">Start typing</a>
+              <a class="font-heading text-xl font-bold text-blue underline" href="/docs/getting-started">Read the getting started guide</a>
+            </div>
+          </section>
+        ) : page ? (
+          <div class="grid gap-10 py-8 lg:grid-cols-[220px_minmax(0,760px)] lg:gap-16 lg:py-12">
+            <aside class="lg:sticky lg:top-6 lg:self-start">
+              <a href="/docs" class="font-heading text-xl font-bold text-blue underline">← All docs</a>
+              <nav class="mt-5 hidden lg:block" aria-label="Docs navigation">
+                {docCategories.map((category) => <div class="mb-5"><p class="font-heading text-xl font-bold">{category.name}</p><div class="mt-1 grid gap-1">{category.slugs.map((slug) => { const item = docsBySlug.get(slug); return item ? <a class={`text-base ${item.slug === page.slug ? "font-bold text-blue" : "text-ink-soft underline"}`} href={`/docs/${item.slug}`}>{item.title.replace("Typing Multiplayer", "").replace("A Practical ", "").trim()}</a> : null; })}</div></div>)}
+              </nav>
+            </aside>
+            <article>
+              <nav aria-label="Breadcrumb" class="text-base text-ink-soft"><a href="/" class="underline">Home</a><span class="px-2">/</span><a href="/docs" class="underline">Docs</a><span class="px-2">/</span><span>{page.title}</span></nav>
+              <header class="mt-7 border-b-2 border-dashed border-ink/30 pb-8">
+                <p class="font-heading text-xl text-blue">{page.category} guide</p>
+                <h1 class="mt-2 font-heading text-5xl font-bold leading-tight sm:text-7xl">{page.title}</h1>
+                <p class="mt-5 max-w-3xl text-2xl leading-tight text-ink-soft">{page.intro}</p>
+              </header>
+              <details class="mt-8 scribble-border bg-yellow/60 p-4 lg:hidden"><summary class="cursor-pointer font-heading text-2xl font-bold">Browse docs</summary><div class="mt-4 grid gap-2">{docCategories.flatMap((category) => category.slugs).map((slug) => { const item = docsBySlug.get(slug); return item ? <a class="text-blue underline" href={`/docs/${item.slug}`}>{item.title}</a> : null; })}</div></details>
+              <nav aria-label="On this page" class="mt-8 scribble-border-blue bg-blue-soft/40 p-5"><p class="font-heading text-2xl font-bold">On this page</p><ol class="mt-2 grid gap-1 text-blue sm:grid-cols-2">{page.blocks.filter((block) => block.type === "heading").map((block) => block.type === "heading" ? <li><a class="underline" href={`#${block.text.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>{block.text}</a></li> : null)}</ol></nav>
+              <div class="docs-prose mt-10">
+                {page.blocks.map((block) => {
+                  if (block.type === "heading") return <h2 id={block.text.toLowerCase().replace(/[^a-z0-9]+/g, "-")} class="scroll-mt-6 font-heading text-3xl font-bold text-ink sm:text-4xl">{block.text}</h2>;
+                  if (block.type === "paragraph") return <p>{block.text}</p>;
+                  if (block.type === "list") return <ul>{block.items.map((item) => <li>{item}</li>)}</ul>;
+                  return <p class="scribble-border bg-yellow/60 p-5 font-heading text-2xl font-bold">{block.text}</p>;
+                })}
+              </div>
+              <section class="mt-10 border-t-2 border-dashed border-ink/30 pt-8"><h2 class="font-heading text-3xl font-bold">Practical tips</h2><ul class="mt-4 grid gap-3">{page.tips.map((tip) => <li class="flex gap-3 text-lg"><span class="text-red">✎</span><span>{tip}</span></li>)}</ul></section>
+              <section class="mt-10 flex flex-wrap items-center gap-4 scribble-border bg-card p-5 paper-shadow"><div class="flex-1"><p class="font-heading text-2xl font-bold">Ready to try it?</p><p class="text-ink-soft">Turn this guide into one focused typing session.</p></div><a class="scribble-border bg-red px-4 py-2 font-heading text-xl font-bold text-white" href={page.cta.href}>{page.cta.label}</a></section>
+              <section class="mt-12"><h2 class="font-heading text-3xl font-bold">Related guides</h2><div class="mt-4 grid gap-3 sm:grid-cols-2">{page.related.map((slug) => { const item = docsBySlug.get(slug); return item ? <a class="scribble-border bg-card p-4 text-blue underline" href={`/docs/${item.slug}`}><span class="font-heading text-xl font-bold">{item.title}</span><span class="mt-1 block text-ink-soft">{item.description}</span></a> : null; })}</div></section>
+            </article>
+          </div>
+        ) : null}
+
+        <footer class="border-t-2 border-dashed border-ink/30 py-7 text-base text-ink-soft"><nav class="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer navigation"><a class="font-bold text-blue underline" href="/">Race</a><a class="font-bold text-blue underline" href="/docs">Typing Hub</a><a class="font-bold text-blue underline" href="/faq">FAQ</a><a class="font-bold text-blue underline" href="/about">About</a><a class="font-bold text-blue underline" href="/privacy">Privacy</a><a class="font-bold text-blue underline" href="/terms">Terms</a><a class="font-bold text-blue underline" href="/contact">Contact</a></nav></footer>
+      </div>
+    </main>
+    {isHub ? <script is:inline>
+      const search = document.querySelector("#docs-search");
+      const items = [...document.querySelectorAll(".doc-search-item")];
+      const status = document.querySelector("#docs-search-status");
+      search?.addEventListener("input", (event) => {
+        const query = event.target.value.toLowerCase().trim();
+        let visible = 0;
+        items.forEach((item) => {
+          const match = !query || item.dataset.search?.toLowerCase().includes(query);
+          item.hidden = !match;
+          if (match) visible += 1;
+        });
+        if (status) status.textContent = query && !visible ? "No guide found. Try WPM, rooms, or accuracy." : query ? `${visible} guide${visible === 1 ? "" : "s"} found.` : "";
+      });
+    </script> : null}
+  </body>
+</html>
